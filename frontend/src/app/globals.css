@@ -1,0 +1,66 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg-black: var(--bg-black);
+  --color-bg-dark: var(--bg-dark);
+  --color-bg-medium: var(--bg-medium);
+  --color-text-white: var(--text-white);
+  --color-text-muted: var(--text-muted);
+  --color-brand-blue: var(--brand-blue);
+  --color-brand-red: var(--brand-red);
+  --color-border-custom: var(--border-color);
+}
+
+:root {
+  --bg-black: #050505;
+  --bg-dark: #0D0D0D;
+  --bg-medium: #161616;
+  --text-white: #FFFFFF;
+  --text-muted: #8E8E93;
+  --border-color: #161616;
+  --brand-blue: #1E5EFF;
+  --brand-red: #D72638;
+  
+  --background: var(--bg-black);
+  --foreground: var(--text-white);
+}
+
+html.light {
+  --bg-black: #F5F5F7; /* Warm soft grey background (Apple style), avoiding harsh white */
+  --bg-dark: #FFFFFF;  /* White container cards */
+  --bg-medium: #E8E8ED; /* Muted gray for elements and hover backdrops */
+  --text-white: #1D1D1F; /* Very dark slate gray for readable high contrast text */
+  --text-muted: #6E6E73; /* Muted gray for secondary labels */
+  --border-color: #D2D2D7; /* Soft grey border */
+  --brand-blue: #0066CC; /* Slightly darker premium blue for perfect light contrast */
+  --brand-red: #D82D20;  /* Slightly adjusted red for light mode */
+  
+  --background: var(--bg-black);
+  --foreground: var(--text-white);
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  overflow-x: hidden;
+  transition: background-color 0.3s cubic-bezier(0.16, 1, 0.3, 1), color 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Micro-animations */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.transition-premium {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
