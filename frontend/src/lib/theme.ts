@@ -1,35 +1,42 @@
 "use client";
 
-export function initTheme() {
-  if (typeof window !== "undefined") {
-    const savedTheme = localStorage.getItem("memoricks-theme");
-    if (savedTheme === "light") {
-      document.documentElement.classList.add("light");
-    } else {
-      document.documentElement.classList.remove("light");
-    }
-  }
+type Theme = "light" | "dark";
+const STORAGE_KEY = "memoricks-theme";
+const THEME_EVENT = "memoricks-theme-change";
+
+export function getTheme(): Theme {
+  return typeof document !== "undefined" &&
+    document.documentElement.classList.contains("light")
+    ? "light"
+    : "dark";
 }
 
-export function toggleTheme(): "light" | "dark" {
-  if (typeof window !== "undefined") {
-    const isLight = document.documentElement.classList.contains("light");
-    if (isLight) {
-      document.documentElement.classList.remove("light");
-      localStorage.setItem("memoricks-theme", "dark");
-      return "dark";
-    } else {
-      document.documentElement.classList.add("light");
-      localStorage.setItem("memoricks-theme", "light");
-      return "light";
-    }
+export function toggleTheme(): Theme {
+  if (typeof window === "undefined") return "dark";
+  const nextTheme = getTheme() === "light" ? "dark" : "light";
+  document.documentElement.classList.toggle("light", nextTheme === "light");
+  try {
+    localStorage.setItem(STORAGE_KEY, nextTheme);
+  } catch {
+    /* Theme still works when storage is blocked. */
   }
-  return "dark";
+  window.dispatchEvent(new Event(THEME_EVENT));
+  return nextTheme;
 }
 
-export function getTheme(): "light" | "dark" {
-  if (typeof window !== "undefined") {
-    return document.documentElement.classList.contains("light") ? "light" : "dark";
-  }
-  return "dark";
+export function subscribeTheme(onStoreChange: () => void) {
+  const handleStorage = (event: StorageEvent) => {
+    if (event.key !== STORAGE_KEY && event.key !== null) return;
+    document.documentElement.classList.toggle(
+      "light",
+      event.newValue === "light",
+    );
+    onStoreChange();
+  };
+  window.addEventListener("storage", handleStorage);
+  window.addEventListener(THEME_EVENT, onStoreChange);
+  return () => {
+    window.removeEventListener("storage", handleStorage);
+    window.removeEventListener(THEME_EVENT, onStoreChange);
+  };
 }

@@ -2,5 +2,11 @@
     "meaning_limit": "Muito curto (até 5 palavras)",
     "explanation_style": "Super Direto (1 frase)",
     "examples_count": 2,
-    "tone_focus": "Geral"
+    "tone_focus": "Geral",
+    "show_translation": true,
+    "show_meaning": true,
+    "show_explanation": true,
+    "show_examples": true,
+    "show_tip": true,
+    "custom_instructions": ""
 }

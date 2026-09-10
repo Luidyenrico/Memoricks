@@ -1,18 +1,21 @@
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from dotenv import load_dotenv
+from contextlib import asynccontextmanager
 import os
 
-# Carrega as variáveis de ambiente do arquivo .env
-load_dotenv()
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
-from .database import engine, Base
-from .routers import terms
+from .migrations import initialize_database
+from .routers import profile, terms
 
-# Cria as tabelas do banco de dados SQLite
-Base.metadata.create_all(bind=engine)
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    initialize_database()
+    yield
+
 
 app = FastAPI(
+    lifespan=lifespan,
     title="Memoricks API",
     description="Backend para o sistema de memorização de idiomas Memoricks com suporte a IA",
     version="2.0.0",
@@ -21,14 +24,17 @@ app = FastAPI(
 # Configuração do Middleware de CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Em desenvolvimento. Ajustar em produção se necessário
-    allow_credentials=True,
+    allow_origins=[origin.strip() for origin in os.environ.get(
+        "CORS_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000"
+    ).split(",") if origin.strip()],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 # Registra os roteadores de endpoints
 app.include_router(terms.router)
+app.include_router(profile.router)
 
 @app.get("/")
 def read_root():

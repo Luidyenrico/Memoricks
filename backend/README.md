@@ -4,7 +4,7 @@ Esta é a API do projeto **Memoricks**, desenvolvida com **FastAPI**, **SQLAlche
 
 ## Pré-requisitos
 
-* Python 3.9+ instalado.
+* Python 3.10+ instalado.
 
 ## Como Executar Localmente
 
@@ -38,3 +38,9 @@ Esta é a API do projeto **Memoricks**, desenvolvida com **FastAPI**, **SQLAlche
    * Redoc: [http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc)
 
 Ao iniciar o servidor pela primeira vez, o arquivo de banco de dados SQLite `memoricks.db` será criado automaticamente na pasta raiz do backend.
+
+## Testes
+
+Instale `requirements-dev.txt` e execute `python -m unittest discover -s tests -v`. Os testes usam SQLite temporário e não chamam a Groq.
+
+O caminho do banco padrão é ancorado nesta pasta. Configurações e funcionamento detalhados estão no [README principal](../README.md).

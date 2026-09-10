@@ -14,7 +14,15 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Memoricks - Sistema de Flashcards",
-  description: "Plataforma pessoal de memorização e aprendizado ativo com flashcards.",
+  icons: {
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/memoricks-logo.png", type: "image/png" },
+    ],
+    apple: [{ url: "/memoricks-logo.png", type: "image/png" }],
+  },
+  description:
+    "Plataforma pessoal de memorização e aprendizado ativo com flashcards.",
 };
 
 export default function RootLayout({
@@ -33,18 +41,24 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
-                var theme = localStorage.getItem('memoricks-theme');
+                var theme = 'dark';
+                try { theme = localStorage.getItem('memoricks-theme'); } catch (e) {}
                 if (theme === 'light') {
                   document.documentElement.classList.add('light');
                 } else {
                   document.documentElement.classList.remove('light');
                 }
               })();
-            `
+            `,
           }}
         />
       </head>
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <a href="#main-content" className="skip-link">
+          Pular para o conteúdo
+        </a>
+        {children}
+      </body>
     </html>
   );
 }
