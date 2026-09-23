@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import "./app-shell.css";
+import AuthGate from "@/components/AuthGate";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -57,7 +59,7 @@ export default function RootLayout({
         <a href="#main-content" className="skip-link">
           Pular para o conteúdo
         </a>
-        {children}
+        <AuthGate>{children}</AuthGate>
       </body>
     </html>
   );

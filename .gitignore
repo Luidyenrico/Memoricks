@@ -21,6 +21,7 @@ node_modules/
 frontend/node_modules/
 .next/
 frontend/.next/
+frontend/.next-e2e/
 out/
 dist/
 build/
@@ -48,3 +49,9 @@ Thumbs.db
 # Browser regression artifacts
 frontend/test-results/
 frontend/playwright-report/
+test-results/
+
+# Local Codex artifact builds from unrelated tasks
+.codex-finalizer/
+.pptx-build/
+saida-dossie-python/

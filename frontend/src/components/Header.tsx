@@ -1,230 +1,152 @@
 "use client";
-
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { getTheme, subscribeTheme, toggleTheme } from "@/lib/theme";
+import AppIcon from "./AppIcon";
 
-export default function Header() {
+const navigation = [
+  { href: "/", label: "Início", icon: "home" },
+  { href: "/themes", label: "Meus temas", icon: "themes" },
+  { href: "/statistics", label: "Estatísticas", icon: "statistics" },
+  { href: "/settings", label: "Configurações", icon: "settings" },
+] as const;
+
+const accountNavigation = [
+  { href: "/settings", label: "Configurações da conta", description: "Idioma e preferências", icon: "settings" },
+  { href: "/themes", label: "Meus temas", description: "Organize seus estudos", icon: "themes" },
+  { href: "/statistics", label: "Estatísticas", description: "Acompanhe sua evolução", icon: "statistics" },
+] as const;
+
+type HeaderProps = {
+  userEmail?: string;
+  userName?: string;
+  onLogout?: () => void | Promise<void>;
+};
+
+function initialsFor(name: string) {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (!parts.length) return "M";
+  return (parts.length === 1 ? parts[0].slice(0, 2) : parts[0][0] + parts.at(-1)![0]).toUpperCase();
+}
+
+export default function Header({ userEmail, userName, onLogout }: HeaderProps) {
   const pathname = usePathname();
+  const reviewing = pathname.startsWith("/review/");
   const theme = useSyncExternalStore(subscribeTheme, getTheme, () => "dark");
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-  const handleToggleTheme = () => {
-    toggleTheme();
-  };
-
-  const navItems = [
-    { label: "INÍCIO", href: "/" },
-    { label: "REVISAR", href: "/review" },
-    { label: "EM ESTUDO", href: "/active" },
-    { label: "APRENDIDO", href: "/mastered" },
-    { label: "CONFIGURAÇÕES", href: "/ai" },
-  ];
-
-  return (
-    <header className="border-b border-border-custom bg-bg-black/80 backdrop-blur-md sticky top-0 z-40 transition-premium">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 min-h-16 py-2 flex items-center justify-between">
-        <div className="flex items-center">
-          <Link
-            href="/"
-            className="flex items-center gap-3 text-text-white hover:opacity-85 transition-premium select-none"
-            aria-label="Memoricks - pagina inicial"
-          >
-            <Image
-              src="/memoricks-logo.png"
-              alt="Logo Memoricks"
-              width={44}
-              height={44}
-              priority
-              className="h-11 w-11 object-contain"
-            />
-            <span className="hidden sm:block font-extrabold text-base tracking-[0.08em]">
-              MEMORICKS
-            </span>
-          </Link>
-        </div>
-
-        <nav
-          aria-label="Navegação principal"
-          className="hidden lg:flex items-center gap-4"
-        >
-          {navItems.map((item) => {
-            const isActive = pathname === item.href;
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                aria-current={isActive ? "page" : undefined}
-                className={`text-xs font-bold tracking-widest transition-premium pb-1 border-b ${
-                  isActive
-                    ? "text-text-white border-brand-blue"
-                    : "text-text-muted border-transparent hover:text-text-white"
-                }`}
-              >
-                {item.label}
-              </Link>
-            );
-          })}
-        </nav>
-
-        <div className="flex items-center gap-3 sm:gap-5">
-          <button
-            onClick={handleToggleTheme}
-            className="text-text-muted hover:text-text-white transition-colors p-3"
-            aria-label={
-              theme === "dark" ? "Ativar tema claro" : "Ativar tema escuro"
-            }
-            title={
-              theme === "dark" ? "Ativar Tema Claro" : "Ativar Tema Escuro"
-            }
-          >
-            {theme === "dark" ? (
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m12.728 12.728l.707.707M12 8a4 4 0 100 8 4 4 0 000-8z"
-                />
-              </svg>
-            ) : (
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"
-                />
-              </svg>
-            )}
-          </button>
-          <Link
-            href="/language"
-            aria-label="Trocar idioma de estudo"
-            title="Trocar idioma de estudo"
-            className={`w-11 h-11 rounded-full border flex items-center justify-center transition-premium ${
-              pathname === "/language"
-                ? "border-brand-blue text-accent bg-brand-blue/10"
-                : "border-border-custom text-text-muted hover:text-text-white hover:border-brand-blue/50"
-            }`}
-          >
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M12 21a9 9 0 100-18 9 9 0 000 18zm0 0c2.2-2.46 3.33-5.46 3.4-9C15.33 8.46 14.2 5.46 12 3m0 18c-2.2-2.46-3.33-5.46-3.4-9C8.67 8.46 9.8 5.46 12 3M3.6 9h16.8M3.6 15h16.8"
-              />
-            </svg>
-          </Link>
-          <Link
-            href="/profile"
-            aria-label="Abrir perfil"
-            title="Perfil"
-            className={`w-11 h-11 rounded-full bg-bg-medium border flex items-center justify-center text-text-white shadow-sm transition-premium ${
-              pathname === "/profile"
-                ? "border-brand-blue"
-                : "border-border-custom hover:border-brand-blue/50"
-            }`}
-          >
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.5 20.1a7.5 7.5 0 0115 0 17.9 17.9 0 01-15 0z"
-              />
-            </svg>
-          </Link>
-          <button
-            type="button"
-            onClick={() => setIsMenuOpen((current) => !current)}
-            aria-label={isMenuOpen ? "Fechar menu" : "Abrir menu"}
-            aria-expanded={isMenuOpen}
-            aria-controls="mobile-navigation"
-            className="lg:hidden w-11 h-11 flex items-center justify-center text-text-muted hover:text-text-white transition-colors"
-          >
-            {isMenuOpen ? (
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            ) : (
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
-              </svg>
-            )}
-          </button>
-        </div>
+  const [busy, setBusy] = useState(false);
+  const [accountOpen, setAccountOpen] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
+  const drawer = useRef<HTMLDialogElement>(null);
+  const menuButton = useRef<HTMLButtonElement>(null);
+  const accountMenu = useRef<HTMLDivElement>(null);
+  const accountButton = useRef<HTMLButtonElement>(null);
+  const displayName = userName?.trim() || userEmail?.split("@")[0] || "Sua conta";
+  const initials = initialsFor(displayName);
+  const section = pathname.startsWith("/groups/") || pathname.startsWith("/subgroups/") || pathname.startsWith("/review")
+    ? "/themes" : pathname === "/" ? "/" : "/" + pathname.split("/")[1];
+  const current = navigation.find((item) => item.href === section) || navigation[0];
+  useEffect(() => {
+    const update = (event: Event) => setBusy((event as CustomEvent<boolean>).detail);
+    window.addEventListener("memoricks-review-busy", update);
+    return () => window.removeEventListener("memoricks-review-busy", update);
+  }, []);
+  useEffect(() => {
+    if (!accountOpen) return;
+    const closeOutside = (event: PointerEvent) => {
+      if (!accountMenu.current?.contains(event.target as Node)) setAccountOpen(false);
+    };
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      setAccountOpen(false);
+      accountButton.current?.focus();
+    };
+    document.addEventListener("pointerdown", closeOutside);
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.removeEventListener("pointerdown", closeOutside);
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [accountOpen]);
+  async function handleLogout() {
+    if (!onLogout || loggingOut) return;
+    setLoggingOut(true);
+    try {
+      await onLogout();
+    } finally {
+      setLoggingOut(false);
+      setAccountOpen(false);
+    }
+  }
+  function closeMenu() {
+    drawer.current?.close();
+    menuButton.current?.focus();
+  }
+  function links() {
+    return navigation.map((item) => (
+      <Link key={item.href} href={item.href} title={item.label}
+        aria-current={section === item.href ? "page" : undefined}
+        aria-disabled={busy || undefined} tabIndex={busy ? -1 : undefined}
+        onClick={(event) => { if (busy) event.preventDefault(); else drawer.current?.close(); }}>
+        <AppIcon name={item.icon} /><span>{item.label}</span>
+      </Link>
+    ));
+  }
+  const brand = <Link href="/" className="app-brand" aria-label="Memoricks — início"
+    aria-disabled={busy || undefined} onClick={(event) => { if (busy) event.preventDefault(); else drawer.current?.close(); }}>
+    <Image src="/memoricks-logo.png" alt="" width={180} height={167} priority />
+    <span>Memoricks<small>Seu conhecimento, conectado.</small></span>
+  </Link>;
+  return <>
+    {!reviewing && <aside className="app-sidebar">
+      {brand}
+      <nav className="app-navigation" aria-label="Navegação principal">{links()}</nav>
+      <div className="sidebar-note"><AppIcon name="review" /><p>Um pouco hoje.<br />Mais aprendido amanhã.</p></div>
+    </aside>}
+    <header className="app-topbar" data-review={reviewing || undefined}>
+      <div className="topbar-location">
+        {!reviewing && <button ref={menuButton} className="icon-button mobile-menu" aria-label="Abrir menu" aria-haspopup="dialog"
+          onClick={() => drawer.current?.showModal()}><AppIcon name="menu" /></button>}
+        <AppIcon name={reviewing ? "review" : current.icon} /><span>{reviewing ? "Revisão" : current.label}</span>
       </div>
-
-      {isMenuOpen && (
-        <nav
-          id="mobile-navigation"
-          aria-label="Navegação principal"
-          className="lg:hidden border-t border-border-custom bg-bg-black px-4 py-3 grid grid-cols-2 gap-2"
-        >
-          {navItems.map((item) => {
-            const isActive = pathname === item.href;
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                aria-current={isActive ? "page" : undefined}
-                onClick={() => setIsMenuOpen(false)}
-                className={`px-3 py-3 rounded-lg text-xs font-bold uppercase tracking-widest transition-colors ${
-                  isActive
-                    ? "bg-brand-blue/10 text-accent"
-                    : "text-text-muted hover:bg-bg-medium hover:text-text-white"
-                }`}
-              >
-                {item.label}
-              </Link>
-            );
-          })}
-        </nav>
-      )}
+      <div className="topbar-actions">
+        <button className="icon-button theme-toggle" onClick={toggleTheme}
+          aria-label={theme === "dark" ? "Ativar tema claro" : "Ativar tema escuro"}>
+          <AppIcon name={theme === "dark" ? "sun" : "moon"} />
+        </button>
+        {onLogout && !reviewing && <div className="account-menu" ref={accountMenu}>
+          <button ref={accountButton} className="account-trigger" type="button"
+            aria-label="Abrir menu da conta" aria-expanded={accountOpen} aria-controls="account-popover"
+            onClick={() => setAccountOpen((open) => !open)}>
+            <span className="account-avatar" aria-hidden="true">{initials}</span>
+            <span className="account-trigger-copy"><strong>{displayName}</strong><small>Minha conta</small></span>
+            <span className="account-chevron" data-open={accountOpen || undefined}><AppIcon name="chevron" /></span>
+          </button>
+          {accountOpen && <div id="account-popover" className="account-popover" aria-label="Menu da conta">
+            <div className="account-summary">
+              <span className="account-avatar account-avatar-large" aria-hidden="true">{initials}</span>
+              <div><strong>{displayName}</strong><span>{userEmail}</span></div>
+            </div>
+            <div className="account-provider"><span aria-hidden="true" />Conectado com Google</div>
+            <nav className="account-links" aria-label="Atalhos da conta">
+              {accountNavigation.map((item) => <Link key={item.href} href={item.href}
+                onClick={() => setAccountOpen(false)}>
+                <span className="account-link-icon"><AppIcon name={item.icon} /></span>
+                <span><strong>{item.label}</strong><small>{item.description}</small></span>
+              </Link>)}
+            </nav>
+            <button className="account-logout" type="button" disabled={loggingOut} onClick={handleLogout}>
+              <AppIcon name="logout" /><span>{loggingOut ? "Saindo…" : "Sair da conta"}</span>
+            </button>
+          </div>}
+        </div>}
+      </div>
     </header>
-  );
+    {!reviewing && <dialog ref={drawer} className="navigation-drawer" aria-label="Menu de navegação"
+      onClick={(event) => { if (event.target === event.currentTarget) closeMenu(); }}>
+      <div className="drawer-heading">{brand}<button className="icon-button" aria-label="Fechar menu" onClick={closeMenu}>×</button></div>
+      <nav className="app-navigation" aria-label="Navegação móvel">{links()}</nav>
+    </dialog>}
+  </>;
 }

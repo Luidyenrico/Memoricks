@@ -21,7 +21,7 @@ export function reviewDueLabel(value: string, now = new Date()): string {
   const date = parseApiDate(value);
   const milliseconds = date.getTime() - now.getTime();
   if (Number.isNaN(milliseconds)) return "Data indisponível";
-  if (milliseconds <= 0) return "Revisar agora";
+  if (milliseconds <= 0) return "Revisão pendente";
   const minutes = Math.ceil(milliseconds / 60_000);
   if (minutes < 60) return `Revisão em ${minutes} min`;
   if (minutes < 24 * 60) return `Revisão em ${Math.ceil(minutes / 60)} h`;

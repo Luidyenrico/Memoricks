@@ -1,5 +1,7 @@
 # Revisão do Memoricks — 08/09/2026
 
+> Registro histórico da revisão de 08/09. A versão de temas e subgrupos, implementada em 11/09/2026, substitui os fluxos de idiomas e remove o quiz descrito abaixo. Consulte o README.md para o funcionamento atual.
+
 Revisão do código da aplicação, configurações e dependências do frontend. Escopo confirmado: correções, simplificação do código e UX; sem busca, filtros, importação/exportação ou novos recursos de produto.
 
 ## Correções aplicadas

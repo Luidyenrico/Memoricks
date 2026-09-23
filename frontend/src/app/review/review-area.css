@@ -1,0 +1,138 @@
+.review-hub-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 30px;
+}
+.review-hub-heading .eyebrow { margin-bottom: 10px; }
+.review-hub-heading h1 { font-size: 1.85rem; }
+.review-hub-heading .lead { margin-top: 10px; font-size: .9rem; }
+.review-hub-summary {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+  padding: 15px 20px;
+  border: 1px solid color-mix(in srgb, var(--brand-blue) 40%, var(--border-color));
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--brand-blue) 10%, var(--bg-dark));
+}
+.review-hub-summary strong { color: var(--accent-blue); font-size: 2rem; line-height: 1; letter-spacing: -.04em; }
+.review-hub-summary span { color: var(--text-muted); font-size: .8rem; max-width: 90px; line-height: 1.5; }
+.review-list-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
+.review-list-heading h2 { font-size: 1rem; }
+.review-group-list { display: grid; gap: 14px; }
+.review-group { border: 1px solid var(--border-color); border-radius: 15px; background: var(--bg-dark); overflow: hidden; }
+.review-group-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  text-align: left;
+  color: var(--text-white);
+  background: transparent;
+  border: 0;
+  padding: 19px 22px;
+}
+.review-group-toggle:hover { background: color-mix(in srgb, var(--topic-color) 5%, var(--bg-dark)); }
+.review-group-toggle:focus-visible { outline-offset: -3px; }
+.review-group .topic-symbol { width: 42px; height: 42px; min-width: 42px; border-radius: 12px; font-size: .86rem; color: var(--topic-color); background: color-mix(in srgb, var(--topic-color) 12%, var(--bg-dark)); border-color: color-mix(in srgb, var(--topic-color) 25%, var(--border-color)); }
+.review-group-identity { display: grid; min-width: 0; gap: 1px; flex: 1; }
+.review-group-title { font-weight: 650; font-size: 1rem; overflow-wrap: anywhere; }
+.review-group-identity .muted { font-size: .76rem; }
+.review-group-count { font-size: .76rem; color: var(--text-muted); white-space: nowrap; }
+.review-group-count.has-due { color: var(--accent-blue); border-radius: 6px; background: color-mix(in srgb, var(--brand-blue) 12%, transparent); padding: 4px 9px; }
+.review-chevron { flex-shrink: 0; color: var(--text-muted); transition: transform .15s; }
+.review-chevron[data-open="true"] { transform: rotate(180deg); }
+.review-subgroups { margin: 0 22px; border-top: 1px solid var(--border-color); }
+.review-subgroup { display: grid; grid-template-columns: minmax(0, 1fr) auto 112px; gap: 22px; align-items: center; padding: 18px 0 18px 56px; }
+.review-subgroup + .review-subgroup { border-top: 1px solid color-mix(in srgb, var(--border-color) 65%, transparent); }
+.review-subgroup h3 { font-size: .9rem; }
+.review-subgroup-info .muted { font-size: .75rem; margin-top: 3px; }
+.review-due { color: var(--text-muted); font-size: .75rem; }
+.review-due.has-due { color: var(--accent-blue); }
+.review-subgroup .button { width: 100%; }
+.review-unavailable { text-align: center; font-size: .72rem; color: var(--text-muted); }
+.review-group-empty, .review-hub-note { padding: 16px 22px; color: var(--text-muted); font-size: .82rem; }
+.review-group > div > .empty-state { margin: 0 22px 16px; padding: 24px; }
+.review-hub-note { padding: 20px 0 0; }
+
+/* Keep the existing review engine inside the shared application shell. */
+.app-workspace .review-screen {
+  inset: 60px 0 0 0;
+  width: auto;
+  height: calc(100dvh - 60px);
+  padding: 22px 32px max(36px, env(safe-area-inset-bottom));
+  z-index: 20;
+  background: radial-gradient(ellipse at 50% 30%, color-mix(in srgb, var(--brand-blue) 4%, transparent), transparent 70%), var(--bg-black);
+}
+.app-workspace .focus-header { width: 100%; max-width: 1120px; margin: 0 auto; padding-bottom: 22px; }
+.app-workspace .focus-header .eyebrow { font-size: .63rem; }
+.app-workspace .focus-header h1 { font-size: 1.25rem; }
+.app-workspace .review-exit { border-radius: 12px; background: var(--bg-dark); }
+.app-workspace .focus-session { max-width: 960px; gap: 18px; }
+.app-workspace .focus-progress { gap: 18px; font-size: .75rem; }
+.app-workspace .focus-card { padding: 28px 30px 0; border-radius: 22px; box-shadow: 0 16px 60px #0000000c; }
+.app-workspace .card-flip-hint { padding: 14px 0 18px; font-size: .73rem; gap: 8px; }
+.app-workspace .focus-controls { padding-top: 6px; }
+.app-workspace .focus-ratings { gap: 16px; }
+.app-workspace .focus-ratings > button { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 3px; min-height: 70px; padding: 12px 20px; border-radius: 12px; letter-spacing: 0; text-transform: none; font-size: .93rem; }
+.app-workspace .focus-ratings > button small { color: inherit; font-size: .72rem; font-weight: 450; opacity: .85; }
+.app-workspace .focus-mastery { height: 48px; padding-top: 10px; }
+.app-workspace .focus-mastery > button { min-height: 38px; font-size: .72rem; text-transform: none; letter-spacing: 0; }
+.app-workspace .focus-complete { overflow-y: auto; }
+@media (max-width: 1050px) {
+  .app-workspace .review-screen { left: 0; padding-inline: 24px; }
+}
+@media (max-width: 700px) {
+  .review-hub-heading { align-items: flex-start; margin-bottom: 24px; gap: 16px; }
+  .review-hub-summary { flex-direction: column; align-items: flex-start; gap: 5px; padding: 12px; }
+  .review-hub-summary strong { font-size: 1.5rem; }
+  .review-hub-summary span { font-size: .68rem; max-width: 74px; }
+  .review-hub-heading h1 { font-size: 1.6rem; }
+  .review-hub-heading .lead { font-size: .82rem; }
+  .review-hub-heading .eyebrow { font-size: .58rem; }
+  .review-group-toggle { padding: 15px; gap: 10px; }
+  .review-group-count { font-size: .68rem; }
+  .review-group-count.has-due { padding: 4px 5px; }
+  .review-group .topic-symbol { width: 36px; min-width: 36px; height: 36px; font-size: .75rem; border-radius: 9px; }
+  .review-group-title { font-size: .9rem; }
+  .review-subgroups { margin-inline: 15px; }
+  .review-subgroup { grid-template-columns: minmax(0, 1fr) 104px; padding: 15px 0; gap: 8px 14px; }
+  .review-subgroup .review-due { grid-column: 1; font-size: .71rem; }
+  .review-subgroup > .button, .review-subgroup > .review-unavailable { grid-column: 2; grid-row: 1 / 3; }
+  .review-subgroup h3 { font-size: .84rem; }
+  .review-subgroup-info .muted { font-size: .7rem; }
+  .app-workspace .review-screen { left: 0; padding: 16px 16px max(28px, env(safe-area-inset-bottom)); }
+  .app-workspace .focus-header { padding-bottom: 16px; }
+  .app-workspace .focus-header h1 { font-size: 1.1rem; }
+  .app-workspace .focus-session { gap: 14px; }
+  .app-workspace .focus-progress { gap: 9px; font-size: .66rem; }
+  .app-workspace .focus-card { padding: 20px 18px 0; border-radius: 17px; }
+  .app-workspace .card-flip-hint { font-size: .67rem; padding-bottom: 14px; }
+  .app-workspace .focus-ratings { gap: 10px; }
+  .app-workspace .focus-ratings > button { min-height: 66px; padding: 10px 12px; font-size: .84rem; }
+  .app-workspace .focus-ratings > button small { font-size: .64rem; }
+}
+@media (max-height: 550px) {
+  .app-workspace .review-screen { padding-top: 10px; padding-bottom: max(18px, env(safe-area-inset-bottom)); }
+  .app-workspace .focus-header { padding-bottom: 9px; }
+  .app-workspace .focus-header h1 { font-size: 1rem; }
+  .app-workspace .focus-session { gap: 8px; }
+  .app-workspace .focus-card { padding: 14px 20px 0; }
+  .app-workspace .focus-ratings > button { min-height: 44px; height: auto; padding: 6px 14px; gap: 0; font-size: .78rem; }
+  .app-workspace .focus-ratings > button small { font-size: .6rem; }
+  .app-workspace .focus-mastery { height: 38px; padding-top: 6px; }
+  .app-workspace .focus-mastery > button { min-height: 32px; height: auto; }
+  .app-workspace .card-flip-hint { padding: 7px 0; }
+}
+@media (prefers-reduced-motion: reduce) { .review-chevron { transition: none; } }
+
+@media (max-height: 400px) {
+  .app-workspace .focus-header .eyebrow { display: none; }
+  .app-workspace .focus-header { padding-bottom: 5px; }
+  .app-workspace .focus-card { padding-top: 8px; }
+  .app-workspace .review-pages .card-field h3 { margin-bottom: 6px; font-size: .6rem; }
+  .app-workspace .card-flip-hint { padding: 3px 0; font-size: .65rem; }
+}

@@ -1,134 +1,159 @@
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 from datetime import datetime, timezone
-from typing import Optional, List
-from .content import normalize_term, parse_content
+from typing import Literal
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from .content import normalize_term
 
-class ExampleItem(BaseModel):
-    learning: str
-    native: str
 
-    @model_validator(mode="before")
+class InputModel(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+
+class CardField(InputModel):
+    id: str = Field(pattern=r"^[a-zA-Z][a-zA-Z0-9_-]{0,63}$")
+    label: str = Field(min_length=1, max_length=80)
+    instructions: str = Field(default="", max_length=4000)
+    side: Literal["front", "back"] = "back"
+    format: Literal["text", "list", "code"] = "text"
+    required: bool = True
+    length: Literal["short", "medium", "detailed"] = "medium"
+    max_chars: int = Field(default=3000, ge=20, le=20000)
+    font: Literal["sans", "serif", "mono"] = "sans"
+    size: Literal["small", "medium", "large"] = "medium"
+    color: str | None = Field(default=None, pattern=r"^#[0-9a-fA-F]{6}$")
+    background: str | None = Field(default=None, pattern=r"^#[0-9a-fA-F]{6}$")
+
+    @field_validator("label")
     @classmethod
-    def migrate_legacy_language_keys(cls, value):
-        if isinstance(value, dict):
-            migrated = dict(value)
-            migrated.setdefault("learning", migrated.get("en", ""))
-            migrated.setdefault("native", migrated.get("pt", ""))
-            return migrated
+    def label_not_blank(cls, value):
+        if not value.strip():
+            raise ValueError("O nome do campo não pode ficar vazio.")
+        return value.strip()
+
+
+class CardTemplate(InputModel):
+    fields: list[CardField] = Field(min_length=2, max_length=20)
+
+    @model_validator(mode="after")
+    def validate_fields(self):
+        ids = [field.id for field in self.fields]
+        if len(ids) != len(set(ids)):
+            raise ValueError("Cada campo precisa de um identificador único.")
+        for side in ("front", "back"):
+            if not any(field.side == side and field.required for field in self.fields):
+                raise ValueError(
+                    "Mantenha pelo menos um campo obrigatório na frente e no verso."
+                )
+        return self
+
+
+class GroupInput(InputModel):
+    title: str = Field(min_length=1, max_length=100)
+    description: str = Field(default="", max_length=2000)
+    context: str = Field(default="", max_length=12000)
+    color: str = Field(default="#85a5ff", pattern=r"^#[0-9a-fA-F]{6}$")
+
+    @field_validator("title")
+    @classmethod
+    def clean_title(cls, value):
+        value = normalize_term(value)
+        if not value:
+            raise ValueError("Informe um título.")
         return value
 
-# Nova estrutura de resposta da IA
-class GeneratedContent(BaseModel):
-    translation: str
-    meaning: str
-    explanation: str
-    examples: List[ExampleItem]
-    tip: str
 
-# Schema para preferências de IA
-class AISettings(BaseModel):
-    meaning_limit: str
-    explanation_style: str
-    examples_count: int = Field(ge=2, le=4)
-    tone_focus: str
-    show_translation: bool = True
-    show_meaning: bool = True
-    show_explanation: bool = True
-    show_examples: bool = True
-    show_tip: bool = True
-    custom_instructions: Optional[str] = ""
+class GroupUpdate(GroupInput):
+    version: int = Field(ge=1)
 
-# Schemas de Termo
-class TermBase(BaseModel):
-    text: str = Field(min_length=1, max_length=300)
 
-    @field_validator("text", mode="before")
+class SubgroupInput(InputModel):
+    title: str = Field(min_length=1, max_length=100)
+    description: str = Field(default="", max_length=2000)
+    context: str = Field(default="", max_length=12000)
+    template: CardTemplate
+
+    @field_validator("title")
+    @classmethod
+    def clean_title(cls, value):
+        return GroupInput.clean_title(value)
+
+
+class SubgroupUpdate(SubgroupInput):
+    version: int = Field(ge=1)
+
+
+class GenerationInput(InputModel):
+    text: str = Field(min_length=1, max_length=5000)
+
+    @field_validator("text")
     @classmethod
     def clean_text(cls, value):
-        return normalize_term(value) if isinstance(value, str) else value
+        if not value.strip():
+            raise ValueError("Informe um assunto, pergunta ou conteúdo.")
+        return value.strip()
 
-class TermCreate(TermBase):
-    term_language: str
-    explanation_language: str
-    custom_settings: Optional[AISettings] = None
 
-class TermResponse(BaseModel):
+class CardInput(GenerationInput):
+    values: dict[str, str]
+    template_version: int = Field(ge=1)
+    source: Literal["manual", "ai", "demo"] = "manual"
+
+
+class CardUpdate(CardInput):
+    version: int = Field(ge=1)
+    use_current_template: bool = False
+
+
+class BatchPlanInput(GenerationInput):
+    text: str = Field(min_length=1, max_length=40000)
+
+
+class BatchGenerationInput(GenerationInput):
+    common_context: str = Field(default="", max_length=3000)
+    subgroup_version: int = Field(ge=1)
+    group_version: int = Field(ge=1)
+
+
+class BatchSaveInput(InputModel):
+    request_id: str = Field(pattern=r"^[a-zA-Z0-9-]{16,64}$")
+    cards: list[CardInput] = Field(min_length=1, max_length=50)
+
+
+class ReviewInput(InputModel):
+    action: Literal["difficult", "medium", "easy", "master"]
+    version: int = Field(ge=1)
+
+
+class CardResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
     id: int
+    subgroup_id: int
     text: str
-    type: str
-    learning_language: str
-    native_language: str
-    exact_translation: str
-    generated_content: GeneratedContent
+    values: dict[str, str]
+    template: CardTemplate
+    template_version: int
+    source: str
+    needs_attention: bool
     difficulty_level: str
     next_review_date: datetime
     mastered: bool
     created_at: datetime
-    mastered_at: Optional[datetime] = None
+    mastered_at: datetime | None
+    version: int
 
-    model_config = ConfigDict(from_attributes=True)
-
-    @field_validator("next_review_date", "created_at", "mastered_at", mode="after")
+    @field_validator("next_review_date", "created_at", "mastered_at")
     @classmethod
-    def include_utc_offset(cls, value):
-        # SQLite stores these dates as naive UTC. Make that explicit on the wire.
-        if value is not None and value.tzinfo is None:
-            return value.replace(tzinfo=timezone.utc)
-        return value
-
-    @field_validator("generated_content", mode="before")
-    @classmethod
-    def parse_json(cls, v):
-        if isinstance(v, GeneratedContent):
-            return v
-        parsed = parse_content(v)
-        content = {
-            key: parsed.get(key) if isinstance(parsed.get(key), str) else ""
-            for key in ("translation", "meaning", "explanation", "tip")
-        }
-        examples = parsed.get("examples")
-        content["examples"] = [
-            {"learning": example.get("learning", example.get("en", "")),
-             "native": example.get("native", example.get("pt", ""))}
-            for example in (examples if isinstance(examples, list) else [])
-            if isinstance(example, dict)
-            and isinstance(example.get("learning", example.get("en", "")), str)
-            and isinstance(example.get("native", example.get("pt", "")), str)
-        ]
-        return content
-
-# Schema de Estatísticas de Revisão para o Dashboard
-class ReviewStats(BaseModel):
-    total_active: int
-    pending_review: int
-    mastered_words: int
-    mastered_expressions: int
-
-class TranslationQuizQuestion(BaseModel):
-    term_id: int
-    text: str
-    type: str
-    correct_translation: str
-    options: List[str]
+    def utc_offset(cls, value):
+        return (
+            value.replace(tzinfo=timezone.utc)
+            if value and value.tzinfo is None
+            else value
+        )
 
 
-class LanguageOption(BaseModel):
-    code: str
-    name: str
+class ProfileUpdate(InputModel):
+    native_language: str
 
 
 class ProfileResponse(BaseModel):
-    native_language: str
-    learning_language: str
-    learning_language_selected: bool
-
     model_config = ConfigDict(from_attributes=True)
-
-
-class ProfileUpdate(BaseModel):
-    native_language: Optional[str] = None
-    learning_language: Optional[str] = None
-
-# Schema para atualização de termos
-class TermUpdate(GeneratedContent):
-    pass
+    native_language: str

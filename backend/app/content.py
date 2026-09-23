@@ -30,7 +30,9 @@ def is_failed_generation_content(value) -> bool:
         or str(content.get("meaning", "")).startswith("Erro na IA")
         or any(
             isinstance(example, dict)
-            and str(example.get("learning", example.get("en", ""))).startswith("Error loading example:")
+            and str(example.get("learning", example.get("en", ""))).startswith(
+                "Error loading example:"
+            )
             for example in (examples if isinstance(examples, list) else [])
         )
     )
@@ -39,4 +41,8 @@ def is_failed_generation_content(value) -> bool:
 def is_reviewable(value) -> bool:
     content = parse_content(value)
     meaning = content.get("meaning")
-    return isinstance(meaning, str) and bool(meaning.strip()) and not is_failed_generation_content(content)
+    return (
+        isinstance(meaning, str)
+        and bool(meaning.strip())
+        and not is_failed_generation_content(content)
+    )
